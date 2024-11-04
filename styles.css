@@ -2,103 +2,102 @@
     box-sizing: border-box;
     font-family: "Jost", sans-serif;
     font-optical-sizing: auto;
-    font-weight: <weight>;
     font-style: normal;
 }
- 
+
 .centered {
     text-align: center;
 }
 
- body {
-     background-color: lightskyblue;
-     font-family: sans-serif;
-     color: #121212;
-     margin: auto;
-     padding: 40px;
+body {
+    background-color: lightskyblue;
+    font-family: sans-serif;
+    color: #121212;
+    margin: auto;
+    padding: 40px;
 
- }
+}
 
- .input-container {
-     background-color: white;
-     padding: 30px;
-     border-radius: 10px;
-     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-     text-align: center;
- }
+.input-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
 
- input[type="text"] {
-     width: 80%;
-     padding: 10px;
-     margin: 10px 0;
-     border-radius: 5px;
-     border: 1px solid #ddd;
- }
+input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
 
- button {
-     padding: 10px 20px;
-     border: none;
-     border-radius: 5px;
-     background-color: lightskyblue;
-     cursor: pointer;
- }
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: lightskyblue;
+    cursor: pointer;
+}
 
- #authorize_button,
- #signout_button {
-     visibility: hidden;
- }
+#authorize_button,
+#signout_button {
+    visibility: hidden;
+}
 
- .info-summary {
-     display: flex;
-     justify-content: space-around;
-     align-items: flex-start;
-     gap: 20px;
-     padding: 20px;
-     max-width: 1200px;
-     margin: auto;
- }
-
-
+.info-summary {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
 
 
- .weather,
- .events {
-     flex: 1;
-     background-color: lightcyan;
-     border-radius: 10px;
-     padding: 20px;
-     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
- }
 
- @media (max-width: 700px) {
+
+.weather,
+.events {
+    flex: 1;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 700px) {
     .info-summary {
-        flex-direction: column; /* Stack children vertically */
+        flex-direction: column;
         padding: 10px;
     }
+
     .weather,
     .events {
-        width: 100%; /* Allow full width for each box */
-        margin-bottom: 20px; /* Add some space between the boxes */
-        min-height: 200px; /* Set a minimum height to prevent it from being too small */
+        width: 100%;
+        margin-bottom: 20px;
+        min-height: 200px;
     }
 }
 
- .weather img {
-     width: 80px;
-     height: 80px;
-     margin: 0 auto;
-     display: block;
- }
+.weather img {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    display: block;
+}
 
- .events table {
-     width: 100%;
-     border-collapse: collapse;
- }
+.events table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
- .events th,
- .events td {
-     border: 1px solid #ddd;
-     padding: 8px;
-     text-align: left;
- }
-
+.events th,
+.events td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
