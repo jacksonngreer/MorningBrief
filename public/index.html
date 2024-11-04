@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            max-width: 600px;
+            padding: 40px;
+            margin: auto;
+        }
+    </style>
+    <title>MorningBrief</title>
+</head>
+<body>
+    <header>
+        <h1 class="centered">MorningBrief</h1>
+    </header>
+    <div class="input-container" >
+        <h2>Enter Your Location</h2>
+        <input type="text" id="locationInput" placeholder="e.g., San Francisco, CA">
+        <button id="weatherbutton" onclick="saveLocation()">Get Weather</button>
+
+        <h2>Google Calendar Authorization</h2>
+        <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
+        <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+
+        <button onclick="continueToNextPage()">Continue</button>
+
+        <pre id="content" style="white-space: pre-wrap;"></pre>
+    </div>
+
+    <script>
+        const CLIENT_ID = '120387429998-q5unnq080jn7urgtgqkbi5g3bi372gak.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyC1WlUmhsY6k_xaOhldPSCTdZ3_1TL5T94';
+        const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
+        const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gisInited = false;
+
+        function saveLocation() {
+            const location = document.getElementById('locationInput').value.trim();
+            if (location) {
+                localStorage.setItem('location', location);  // Store location
+                //alert('Location saved!'); // Optional feedback
+                const weatherButton = document.getElementById('weatherbutton');
+                weatherButton.style.backgroundColor = 'green'; // Change background color
+                weatherButton.style.color = 'white';
+            } else {
+                alert('Please enter a location!');
+            }
+        }
+
+        function continueToNextPage() {
+            window.location.href = 'dashboard.html';  // Navigate to the dashboard page
+        }
+
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: [DISCOVERY_DOC],
+            });
+            gapiInited = true;
+            maybeEnableButtons();
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: '',
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+
+        function maybeEnableButtons() {
+            if (gapiInited && gisInited) {
+                document.getElementById('authorize_button').style.visibility = 'visible';
+            }
+        }
+
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) throw resp;
+                document.getElementById('signout_button').style.visibility = 'visible';
+                document.getElementById('authorize_button').innerText = 'Refresh';
+                await listAllCalendarsAndEvents();
+            };
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                tokenClient.requestAccessToken({ prompt : '' });
+            }
+        }
+
+        function handleSignoutClick() {
+            const token = gapi.client.getToken();
+            if (token !== null) {
+                google.accounts.oauth2.revoke(token.access_token);
+                gapi.client.setToken('');
+                document.getElementById('content').innerText = '';
+                document.getElementById('authorize_button').innerText = 'Authorize';
+                document.getElementById('signout_button').style.visibility = 'hidden';
+            }
+        }
+
+        async function listAllCalendarsAndEvents() {
+            let response;
+            try {
+                response = await gapi.client.calendar.calendarList.list();
+            } catch (err) {
+                document.getElementById('content').innerText = `Error fetching calendars: ${err.message}`;
+                return;
+            }
+            const calendars = response.result.items;
+            let allEvents = [];
+            // Fetch events for today's date from each calendar
+            const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+            for (const calendar of calendars) {
+                const events = await fetchTodaysEvents(calendar.id, today);
+                allEvents = allEvents.concat(events);
+            }
+            localStorage.setItem('events', JSON.stringify(allEvents)); // Store events in localStorage
+            continueToNextPage(); // Navigate to the dashboard page
+        }
+
+        async function fetchTodaysEvents(calendarId, today) {
+            try {
+                const response = await gapi.client.calendar.events.list({
+                    calendarId: calendarId,
+                    timeMin: `${today}T00:00:00Z`,
+                    timeMax: `${today}T23:59:59Z`,
+                    showDeleted: false,
+                    singleEvents: true,
+                    orderBy: 'startTime',
+                });
+                return response.result.items || [];
+            } catch (err) {
+                console.error(`Error fetching events from calendar ${calendarId}:`, err);
+                return [];
+            }
+        }
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MorningBrief</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <header>
+        <h1 class="centered">MorningBrief</h1>
+    </header>
+    <div class="info-summary">
+        <div class="weather">
+            <h2>Today's Weather</h2>
+            <img src="https://cdn-icons-png.flaticon.com/512/10480/10480648.png" alt="sun">
+            <p id="currentTemp">Current temp: --°F</p>
+            <p id="highTemp">Hi: --°F</p>
+            <p id="lowTemp">Lo: --°F</p>
+            <p id="rainChance">Chance of rain: --%</p>
+            <p id="uvIndex">Hi UV index: --</p>
+        </div>
+        <div class="events">
+            <h2>Today's Events</h2>
+            <table id="eventsTable">
+                <tr>
+                    <th>Event</th>
+                    <th>Time</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const location = localStorage.getItem('location'); // Default location
+            fetchWeather(location);
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            events.reverse();
+            const eventsTable = document.getElementById('eventsTable');
+
+            // Reverse the order of events
+
+            events.forEach((event) => {
+                const row = eventsTable.insertRow();
+                const startTime = event.start.dateTime ? new Date(event.start.dateTime) : null;
+                const endTime = event.end.dateTime ? new Date(event.end.dateTime) : null;
+
+                let timeDisplay;
+                if (startTime && endTime) {
+                    const formattedStartTime = formatTime(startTime);
+                    const formattedEndTime = formatTime(endTime);
+                    timeDisplay = `${formattedStartTime} - ${formattedEndTime}`;
+                } else {
+                    timeDisplay = "No time specified";
+                }
+                row.innerHTML = `
+                <td>${event.summary}</td>
+                <td>${timeDisplay}</td>
+            `;
+            });
+        });
+
+
+        function formatTime(date) {
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function fetchWeather(location) {
+            const apiKey = 'KRVTLWERE3REKBM9EYTM9SCQV';
+            const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${encodeURIComponent(location)}?unitGroup=us&key=${apiKey}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch weather');
+                    return response.json();
+                })
+                .then(data => {
+                    const today = data.days[0];
+                    document.getElementById('currentTemp').textContent = `Current temp: ${today.temp}°F`;
+                    document.getElementById('highTemp').textContent = `Hi: ${today.tempmax}°F`;
+                    document.getElementById('lowTemp').textContent = `Lo: ${today.tempmin}°F`;
+                    document.getElementById('rainChance').textContent = `Chance of rain: ${today.precipprob}%`;
+                    document.getElementById('uvIndex').textContent = `Hi UV index: ${today.uvindex}`;
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Failed to load weather data.');
+                });
+        }
+    </script>
+</body>
+
+</html>
