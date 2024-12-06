@@ -93,19 +93,22 @@
             }
         }
 
-        function handleAuthClick() {
-            tokenClient.callback = async (resp) => {
-                if (resp.error !== undefined) throw resp;
-                document.getElementById('signout_button').style.visibility = 'visible';
-                document.getElementById('authorize_button').innerText = 'Refresh';
-                await listAllCalendarsAndEvents();
-            };
-            if (gapi.client.getToken() === null) {
-                tokenClient.requestAccessToken({ prompt: 'consent' });
-            } else {
-                tokenClient.requestAccessToken({ prompt: '' });
-            }
-        }
+        async function handleAuthClick() {
+    tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) throw resp;
+        document.getElementById('signout_button').style.visibility = 'visible';
+        document.getElementById('authorize_button').innerText = 'Refresh';
+
+        // Ensure events are fetched before proceeding
+        await listAllCalendarsAndEvents();
+    };
+    if (gapi.client.getToken() === null) {
+        tokenClient.requestAccessToken({ prompt: 'consent' });
+    } else {
+        tokenClient.requestAccessToken({ prompt: '' });
+    }
+}
+
 
         function handleSignoutClick() {
             const token = gapi.client.getToken();
