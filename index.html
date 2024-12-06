@@ -134,7 +134,7 @@
                 const events = await fetchTodaysEvents(calendar.id, today);
                 allEvents = allEvents.concat(events);
             }
-            localStorage.setItem('events', JSON.stringify(allEvents)); // Store events in localStorage
+            localStorage.setItem('events', JSON.stringify(allEvents));  // Store events in localStorage
             continueToNextPage(); // Navigate to the dashboard page
         }
 
